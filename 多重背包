@@ -1,0 +1,56 @@
+/*多重背包问题 
+有 N 种物品和一个容量是 V 的背包。
+
+第 i 种物品最多有 si 件，每件体积是 vi，价值是 wi。
+
+求解将哪些物品装入背包，可使物品体积总和不超过背包容量，且价值总和最大。
+输出最大价值。
+
+输入格式
+第一行两个整数，N，V，用空格隔开，分别表示物品种数和背包容积。
+
+接下来有 N 行，每行三个整数 vi,wi,si，用空格隔开，分别表示第 i 种物品的体积、价值和数量。
+
+输出格式
+输出一个整数，表示最大价值。
+
+数据范围
+0<N,V≤100
+0<vi,wi,si≤100
+输入样例
+4 5
+1 2 3
+2 4 1
+3 4 3
+4 5 2
+输出样例：
+10
+
+思路：
+问题变成了每件物品是有限数量s个。
+针对每一种体积，把每件物品展开成s个单一物品，那么就变成了01背包。
+dp[v] = max(dp[v], dp[v - w] + c,dp[v - 2*w] + 2*c, ......, dp[v - s*w] + s*c)
+
+时间复杂度O(nms)
+空间复杂度O(n)
+*/
+#include<iostream>
+#include<algorithm>
+using namespace std;
+
+const int maxn = 105;
+int dp[maxn];
+
+int main() {
+	int n, m;
+	cin >> n >> m;
+	int w, c, s;
+	for (int i = 0; i < n; i++) {
+		cin >> w >> c >> s;
+		for (int v = m; v >= 0; v--)
+			for (int k = 1; k <= s && k*w <= v; k++)
+				dp[v] = max(dp[v], dp[v - k * w] + k * c);
+	}
+	cout << dp[m] << endl;
+	return 0;
+}
