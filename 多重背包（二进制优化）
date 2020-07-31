@@ -1,0 +1,57 @@
+/*多重背包问题 2
+
+数据范围
+0<N≤1000
+0<V≤2000
+0<vi,wi,si≤2000
+
+三重循环的方法对大数据量很不友好，考虑将其优化。
+对于每一种s个物品，由于其体积价值都相等，可否将其按一定数量打包成一种新的物品呢？
+换言之，可否用一串整数表示S，使得任何大于0小于等于S的整数都能被拼凑出来。
+用二进制的方法可以表达。
+比如 7 = 1+1+1+1+1+1+1+1。可以表示出1...7所有的数，但用了7个数。
+7 = 1+2+4.同样可以表示1...7所有的数，但只用了3个数。
+理论待证明，事实是用二进制表示时，所需的整数最少。
+但 1+2+4<10 1+2+4+8>10。当S不是2^n-1时，2的幂次会超过S。
+令base=1; base *=2; s-=base。不够减的时候保留下来就行了。
+这样我们将s个物品打包成了logS个物品包，再进行01背包就行了。打包的结果要保存下来。
+
+时间复杂度O(n*m*logS)
+空间复杂度O(m)
+*/
+
+#include<iostream>
+#include<algorithm>
+#include<vector>
+using namespace std;
+
+struct node {
+	int w, c;
+};
+
+const int maxn = 2005;
+int dp[maxn];
+vector<node>list;
+
+int main() {
+	int n, m;
+	cin >> n >> m;
+	int w, c, s;
+	for (int i = 0; i < n; i++) {
+		cin >> w >> c >> s;
+		//二进制优化复杂度
+		for (int j = 1; j <= s; j *= 2) {
+			list.push_back({ j*w, j*c });
+			s -= j;
+		}
+		if (s > 0)list.push_back({ s*w, s*c });
+	}
+	//01背包
+	for (auto good : list) {
+		for (int v = m; v >= good.w; v--) {
+			dp[v] = max(dp[v], dp[v - good.w] + good.c);
+		}
+	}
+	cout << dp[m] << endl;
+	return 0;
+}
