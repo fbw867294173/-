@@ -1,0 +1,66 @@
+/*
+
+牛牛公司老板让牛牛负责m个冰激凌的运输。运输车的冷库只够装n个冰激凌，一次运输需要t分钟，返回也需要t分钟。
+每个冰激凌制作好有一个时间。牛牛想知道最短运输完所有冰激凌的时间，以及在时间最短的情况下最少运输次数。
+
+输入
+
+2,3,10,[10,30,40]
+
+输出
+
+[50,2]
+
+备注:
+(1≤n,m,t≤2000)
+
+思路：
+用dp[i]表示第0到i-1个冰激凌运送完并返回工厂的时间，cnt[i]表示运送0到i-1的冰激凌所需的最少次数。
+*/
+
+
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+const int INF = 0X3F3F3F3F;
+
+//这里c表示的是时间轴，而非每个冰激凌完成所需的时间。
+
+vector<int> dp, cnt;
+
+vector<int> icecream(int n, int m, int t, int* c, int cLen) {
+    dp.resize(m, INF);
+    cnt.resize(m, INF);
+    sort(c, c + m);
+    //仅考虑第一趟最多能运送的冰激凌，此时所需的运送次数为1
+    for (int i = 0; i < min(m,n); ++i) {
+        dp[i] = c[i] + 2 * t; // DP初始化
+        cnt[i] = 1;
+    }
+
+    for (int i = 0; i < m; ++i) {
+        for (int j = i - 1; j >= 0 && i - j <= n; --j) {
+            //取最大值表示若之前运送的车回来后冰激凌仍未生产，则需等待
+            //用tmp值去更新dp[i]，表示0到i-1运送完成后所需的时间
+            int tmp = max(c[i], dp[j]) + 2 * t;
+            //更新dp,cnt数组
+            if (tmp < dp[i]) {
+                dp[i] = tmp;
+                cnt[i] = cnt[j] + 1;
+            }
+            if (tmp == dp[i] && cnt[j] + 1 < cnt[i]) {
+                cnt[i] = cnt[j] + 1;
+            }
+        }
+    }
+    return { dp[m - 1] - t, cnt[m - 1] };
+     
+}
+
+int main() {
+    int c[] = { 10,30,40 };
+    cout << icecream(2, 3, 10, c, 3)[0];
+    return 0;
+}
